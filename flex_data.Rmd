@@ -1,0 +1,181 @@
+---
+title: "Potensi Daerah Kabupaten Tanah Laut Tahun 2021"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: scroll
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(glue)
+library(plotly)
+library(lubridate)
+options(scipen = 100)
+```
+
+
+```{r}
+library("readxl")
+potensi <- read_excel("indikator_2023.xlsx")
+
+potensi$id_instansi <- as.factor(potensi$id_instansi)
+potensi$id_indikator <- as.factor(potensi$id_indikator)
+potensi$master_id_indikator <- as.factor(potensi$master_id_indikator)
+potensi$tahun <- as.factor(potensi$tahun)
+potensi$satuan <- as.factor(potensi$satuan)
+potensi$capaian <- as.numeric(potensi$capaian)
+```
+
+
+```{r}
+kunjungan_wisata <- potensi %>% 
+  filter(id_instansi=="3", tahun=="2021",master_id_indikator=="584",is.na(capaian)==F) %>% 
+  select(indikator,capaian) 
+```
+
+
+```{r}
+jlh_rumah_makan <- potensi %>% 
+  filter(id_instansi=="3", tahun=="2021",master_id_indikator=="630",is.na(capaian)==F) %>% 
+  select(indikator,capaian) 
+```
+
+
+
+```{r}
+jlh_hotel=potensi %>% 
+  filter(id_instansi=="3", tahun=="2021") %>% 
+  select(id_indikator,indikator,capaian,master_id_indikator) 
+  #head(1)
+
+  
+  
+#jlh_hotel
+  
+#tot_hotel=jlh_hotel$capaian
+
+```
+
+```{r}
+# jlh_hotel %>% 
+#   filter(master_id_indikator=="3574")
+```
+
+
+
+```{r}
+#ßtot_hotel
+```
+
+
+
+Pariwisata  {data-orientation=rows}
+==============================================
+
+
+
+Row
+--------------------------------------------------------------------------
+
+### Jumlah Hotel
+```{r}
+tot_hotel <-  jlh_hotel[jlh_hotel$id_indikator=="6853",c("capaian")]
+valueBox(tot_hotel,icon = "fa-hotel")
+```
+
+### Jumlah Tempat Wisata
+```{r}
+tempat_wisata <- jlh_hotel[jlh_hotel$id_indikator=="3574",c("capaian")]
+valueBox(tempat_wisata,icon = "fa-tree")
+```
+
+
+### Rumah Makan
+```{r}
+tempat_wisata <- jlh_hotel[jlh_hotel$id_indikator=="630",c("capaian")]
+valueBox(tempat_wisata,icon = "fa-cutlery")
+```
+
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Jumlah Kunjungan Tempat Wisata
+
+```{r}
+library(ggthemes)
+#articles <- computeArticles()
+#valueBox( icon = "fa-pencil")
+plot_kunjungan_wisata = ggplot(data=kunjungan_wisata, aes(y=reorder(indikator,capaian),
+                                                   x=capaian)) +
+ 
+  geom_col(aes(fill=capaian)) +
+  geom_label(aes(label = capaian)) +
+  geom_text(aes(label = capaian, x = capaian + 1.3e3),
+            position = position_dodge(1.1),
+            vjust = 0,
+            hjust = 0) +
+ 
+  #geom_label(aes(label=capaian),label.size = 0.1, hjust = 0.1) +
+  
+ 
+  scale_fill_gradient(low="red",high = "black") +
+  labs(title = "Jumlah Kunjungan Tempat Wisata",
+       x = "Wisatawan",
+       y = NULL,
+       caption = "Sumber : Dinas Pariwisata") +
+   theme(legend.position = "none")
+
+ggplotly(plot_kunjungan_wisata)
+
+```
+
+Column 
+-----------------------------------------------------------------------
+
+### Jumlah Rumah Makan
+
+```{r}
+library(ggthemes)
+#articles <- computeArticles()
+#valueBox( icon = "fa-pencil")
+plot_rumah_makan = ggplot(data=jlh_rumah_makan, aes(y=reorder(indikator,capaian),
+                                                   x=capaian)) +
+ 
+  geom_col(aes(fill=capaian)) +
+  geom_label(aes(label = capaian)) +
+  geom_text(aes(label = capaian, x = capaian + 1.1),
+            position = position_dodge(1.1),
+            vjust = 0,
+            hjust = 0) +
+ 
+  #geom_label(aes(label=capaian),label.size = 0.1, hjust = 0.1) +
+  
+ 
+  scale_fill_gradient(low="red",high = "black") +
+  labs(title = "Jumlah Rumah Makan",
+       x = "Unit",
+       y = NULL,
+       caption = "Sumber : Dinas Pariwisata") +
+   theme(legend.position = "none")
+
+ggplotly(plot_rumah_makan)
+```
+
+
+
+
+
+<!-- Page 2 -->
+<!-- ======================================= -->
+
+<!-- Column {data-width=650} -->
+<!-- ---------------------------------------------------------------------- -->
+
+<!-- ### Chart S -->
